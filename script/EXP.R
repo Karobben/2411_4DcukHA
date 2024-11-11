@@ -86,10 +86,10 @@ ggsave('plot/Vln_CDgenes3.png', width = 12, height = 3)
 c9_list = data.frame(row.names(HA_5@meta.data)[HA_5@meta.data$seurat_clusters ==9])
 
 write.table(c9_list, 'result/c9_id.txt', quote =F, row.names = F)
+write.csv(HA_5@meta.data, "result/GEX_anno.csv")
 
 saveRDS(HA_5, file = "result/AllGEX.rds")
 # HA_5 <- readRDS("result/AllGEX.rds")
-# write.csv(HA_5@meta.data, "result/GEX_anno.csv")
 ######################################################
 ## Check cells
 ######################################################

@@ -161,6 +161,39 @@ ggsave('plot/Vln_CDgenes3_screen.png', width = 12, height = 3)
 head(Screened.features[order(abs(Screened.features$avg_log2FC), decreasing = T),], 30)
 
 
+###################
+## Based on mini HA
+###################
+
+library(reshape2)
+
+# read HA_5 
+HA_5 <- readRDS("result/AllGEX.rds")
+# read productive VDJ 
+VDJ_TB <- read.table("result/Duck_numbring_class.tsv", sep = '\t', header = T)
+
+
+HA_5[["CellName"]] <- colnames(HA_5)
+miniGroup <- c("miniHA3_G1", "miniHA3_G3")
+HA_5[["SType"]] <- "G"
+HA_5@meta.data$SType[HA_5@meta.data$orig.ident %in% miniGroup] <- 'mini'
+
+HA_5.VDJPositive <- subset(HA_5, subset = CellName %in% VDJ_TB$cell_id )
+
+TB_clusCnt.Posi <- data.frame(t(as.data.frame.matrix(table(HA_5.VDJPositive@meta.data[c('SType', 'seurat_clusters')]))))
+TB_clusCnt.all <- data.frame((table(HA_5@meta.data[c('seurat_clusters')])))
+
+TB_clus_count <- cbind(TB_clusCnt.Posi, all = TB_clusCnt.all$Freq)
+TB_clus_count$Class <- row.names(TB_clus_count)
+TB_clus_count$all <- TB_clus_count$all - TB_clus_count$G - TB_clus_count$mini
+TB_clus_count.m <- melt(TB_clus_count, id.var='Class')
+
+
+head(TB_clus_count.m)
+
+ggplot(TB_clus_count.m, aes(Class, value, fill = variable)) + geom_bar(stat = 'identity', position = 'fill') +
+  theme_bw()
+ggsave('plot/ClusterInVDJProductive.png', w = 7, h = 4.5)
 
 
 
@@ -349,10 +382,6 @@ i = 1
 gseaplot2(kk2, geneSetID = i, title = kk2$Description[i], color = 'salmon', pvalue_table = TRUE)
 
 ggsave('GSEM_KK.png', w = 5.46, h = 3.23)
-
-
-
-
 
 
 GOgse_CC <- gseGO(geneList     = geneList,
